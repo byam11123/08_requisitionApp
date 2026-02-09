@@ -36,5 +36,5 @@ echo "Verifying environment..."
 ls -l app.jar
 java -version
 
-echo "Starting Spring Boot Application..."
-exec java -jar app.jar
+echo "Starting Spring Boot Application with debug flags..."
+exec java -XshowSettings:all -jar app.jar
