@@ -32,7 +32,7 @@ logging:
     com.requisition: DEBUG
 
 server:
-  port: 8081
+  port: ${PORT:8081}
 
 jwt:
   secret: ${JWT_SECRET:your-secret-key-change-in-production-must-be-very-long-secure-key}
