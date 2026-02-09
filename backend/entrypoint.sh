@@ -1,40 +1,37 @@
 #!/bin/sh
 set -e
 
-# Force redeploy check
 echo "--- Entrypoint Script Starting ---"
 
 if [ -z "$DB_URL" ]; then
     echo "ERROR: DB_URL environment variable is MISSING!"
-    echo "Available keys:"
-    env | cut -d= -f1
-else
-    echo "DB_URL is present. Original length: ${#DB_URL}"
+    exit 1
 fi
 
-# Check for Render's postgres:// or postgresql:// format and convert to jdbc:postgresql://
-# We use sed to strictly replace the start of the string
-echo "Checking URL format..."
-CURRENT_URL="$DB_URL"
-# Replace postgres:// or postgresql:// with jdbc:postgresql://
-NEW_URL=$(echo "$CURRENT_URL" | sed -E 's|^postgres(ql)?://|jdbc:postgresql://|')
+echo "Original DB_URL length: ${#DB_URL}"
 
-if [ "$NEW_URL" != "$CURRENT_URL" ]; then
-    echo "Detected Render URL format. Updating to JDBC format..."
-    export DB_URL="$NEW_URL"
-else
-    echo "URL format appears compatible or unchanged."
+# 1. Convert postgres:// -> jdbc:postgresql://
+# 2. Strip user:password@ authority section (Driver doesn't support it in jdbc:postgresql://)
+# Regex explanation:
+# s|^postgres(?:ql)?://|jdbc:postgresql://|  -> Replace protocol
+# s|//[^@]*@|//|                             -> Remove everything between // and @ (the user:pass part)
+
+CLEAN_URL=$(echo "$DB_URL" | sed -E 's|^postgres(ql)?://|jdbc:postgresql://|' | sed -E 's|//[^@]+@|//|')
+
+if [ "$CLEAN_URL" != "$DB_URL" ]; then
+    echo "Sanitized DB_URL for JDBC compliance (stripped user info & fixed protocol)."
+    export DB_URL="$CLEAN_URL"
 fi
 
-# Print protocol for verification (without revealing credentials)
-case "$DB_URL" in
-    jdbc:postgresql://*) echo "Final Protocol: jdbc:postgresql://" ;;
-    *) echo "WARNING: Final URL does not start with jdbc:postgresql://. Value starts with: $(echo "$DB_URL" | cut -c 1-10)..." ;;
-esac
+# Print safe part of URL
+echo "Final DB_URL (safe): $(echo "$DB_URL" | sed 's|//.*@|//***@|')"
 
-echo "Verifying environment..."
-ls -l app.jar
-java -version
+# Check for separate credentials (required since we stripped them from URL)
+if [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
+    echo "WARNING: DB_USER or DB_PASSWORD is missing! "
+    echo "Ensure these are set in Render Dashboard Environment Variables."
+fi
 
-echo "Starting Spring Boot Application with memory limits..."
-exec java -Xms256m -Xmx350m -jar app.jar
+echo "Starting Spring Boot..."
+# Memory: 256m Heap + JVM overhead fits comfortably in 512m container
+exec java -Xms128m -Xmx256m -jar app.jar
