@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = '/api/v1'; // Force Nginx Proxy
+// Use backend URL directly - CORS is configured to allow all origins
+const API_URL = 'https://requisition-backend-egoa.onrender.com/api/v1';
 
 const api = axios.create({
     baseURL: API_URL,
