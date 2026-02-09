@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import BusinessIcon from '@mui/icons-material/Business';
 import PersonIcon from '@mui/icons-material/Person';
+import { authAPI } from '../services/api';
 
 interface RegisterOrganizationForm {
     organizationName: string;
@@ -35,21 +36,11 @@ const RegisterOrganization: React.FC = () => {
         setLoading(true);
         setError('');
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register-organization`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || 'Registration failed');
-            }
-
+            // Use centralized API instance which goes through Nginx proxy
+            const response = await authAPI.registerOrganization(data);
             navigate('/login', { state: { message: 'Organization registered! Please log in.' } });
         } catch (err: any) {
-            setError(err.message);
+            setError(err.response?.data?.message || err.message || 'Registration failed');
         } finally {
             setLoading(false);
         }

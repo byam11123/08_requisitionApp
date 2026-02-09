@@ -302,9 +302,9 @@ const ViewRequisition: React.FC = () => {
                                                 <Typography variant="caption" display="block" align="center" gutterBottom>{item.title}</Typography>
                                                 <Box
                                                     component="img"
-                                                    src={`${import.meta.env.VITE_API_URL}${item.url.replace('/api/v1', '')}`}
+                                                    src={`${item.url.replace('/api/v1', '')}`}
                                                     sx={{ width: '100%', height: 100, objectFit: 'contain', cursor: 'pointer' }}
-                                                    onClick={() => window.open(`${import.meta.env.VITE_API_URL}${item.url.replace('/api/v1', '')}`, '_blank')}
+                                                    onClick={() => window.open(`${item.url.replace('/api/v1', '')}`, '_blank')}
                                                 />
                                             </CardContent>
                                         </Card>
