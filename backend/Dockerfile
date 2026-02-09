@@ -9,5 +9,5 @@ COPY --from=build /build/target/*.jar app.jar
 RUN apk add --no-cache curl
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
-EXPOSE 8081
+EXPOSE 8080
 ENTRYPOINT ["./entrypoint.sh"]
