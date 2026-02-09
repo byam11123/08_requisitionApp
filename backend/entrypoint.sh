@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+# Force redeploy check
 echo "--- Entrypoint Script Starting ---"
 
 if [ -z "$DB_URL" ]; then
