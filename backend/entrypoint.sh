@@ -36,5 +36,5 @@ echo "Verifying environment..."
 ls -l app.jar
 java -version
 
-echo "Starting Spring Boot Application with debug flags..."
-exec java -XshowSettings:all -jar app.jar
+echo "Starting Spring Boot Application with memory limits..."
+exec java -Xms256m -Xmx350m -jar app.jar
