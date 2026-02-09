@@ -30,6 +30,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGlobalException(Exception ex) {
+        // Handle database constraint violations (duplicate key, etc.)
+        if (ex.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+            return new ResponseEntity<>(
+                    new ApiResponse<>(false, "Duplicate entry - this record already exists", null, LocalDateTime.now()),
+                    HttpStatus.CONFLICT);
+        }
         return new ResponseEntity<>(
                 new ApiResponse<>(false, "An unexpected error occurred: " + ex.getMessage(), null, LocalDateTime.now()),
                 HttpStatus.INTERNAL_SERVER_ERROR);

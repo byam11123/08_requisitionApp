@@ -25,6 +25,11 @@ public class OrganizationService {
     private PasswordEncoder passwordEncoder;
 
     public OrganizationDTO registerOrganization(RegisterOrganizationRequest request) {
+        // Check for duplicate email BEFORE attempting to save
+        if (userRepository.findByEmail(request.getAdminEmail()).isPresent()) {
+            throw new RuntimeException("User already exists with email: " + request.getAdminEmail());
+        }
+
         // 1. Create Organization
         Organization org = new Organization();
         org.setName(request.getOrganizationName());
