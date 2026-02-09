@@ -1,0 +1,64 @@
+services:
+  # --------------------------------------------------------------------------------
+  # BACKEND SERVICE
+  # --------------------------------------------------------------------------------
+  - type: web
+    name: requisition-backend
+    env: docker
+    region: singapore # Or your preferred region
+    plan: free     # Or starter, etc.
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DB_URL
+        fromDatabase:
+          name: requisition-db
+          property: connectionString
+      - key: DB_USER
+        fromDatabase:
+          name: requisition-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: requisition-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://requisition-frontend.onrender.com # Update after deployment if needed
+
+  # --------------------------------------------------------------------------------
+  # FRONTEND SERVICE
+  # --------------------------------------------------------------------------------
+  - type: web
+    name: requisition-frontend
+    env: docker
+    region: singapore
+    plan: free
+    dockerContext: ./frontend
+    dockerfilePath: ./frontend/Dockerfile
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: requisition-backend
+          envVarKey: RENDER_EXTERNAL_URL # Or just type in the backend URL manually later if this fails
+          # Note: Render doesn't support 'fromService' for build args directly in all contexts.
+          # The Dockerfile expects an ARG VITE_API_URL.
+          # We might need to handle this via manual environment variable setting if auto-discovery fails.
+      - key: VITE_API_URL_PLACEHOLDER
+        value: https://requisition-backend.onrender.com # Fallback/Initial guess
+
+databases:
+  # --------------------------------------------------------------------------------
+  # DATABASE SERVICE
+  # --------------------------------------------------------------------------------
+  - name: requisition-db
+    databaseName: requisition_db
+    user: requisition_user
+    plan: free
+    region: singapore
+    ipAllowList: [] # Internal access only
