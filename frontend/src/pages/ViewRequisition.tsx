@@ -302,9 +302,9 @@ const ViewRequisition: React.FC = () => {
                                                 <Typography variant="caption" display="block" align="center" gutterBottom>{item.title}</Typography>
                                                 <Box
                                                     component="img"
-                                                    src={`${item.url.replace('/api/v1', '')}`}
+                                                    src={`https://requisition-backend-egoa.onrender.com${item.url}`}
                                                     sx={{ width: '100%', height: 100, objectFit: 'contain', cursor: 'pointer' }}
-                                                    onClick={() => window.open(`${item.url.replace('/api/v1', '')}`, '_blank')}
+                                                    onClick={() => window.open(`https://requisition-backend-egoa.onrender.com${item.url}`, '_blank')}
                                                 />
                                             </CardContent>
                                         </Card>
