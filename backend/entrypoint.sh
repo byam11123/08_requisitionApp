@@ -32,5 +32,9 @@ case "$DB_URL" in
     *) echo "WARNING: Final URL does not start with jdbc:postgresql://. Value starts with: $(echo "$DB_URL" | cut -c 1-10)..." ;;
 esac
 
+echo "Verifying environment..."
+ls -l app.jar
+java -version
+
 echo "Starting Spring Boot Application..."
 exec java -jar app.jar
