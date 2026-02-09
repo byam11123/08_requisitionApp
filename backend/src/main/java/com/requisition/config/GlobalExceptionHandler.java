@@ -17,10 +17,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String message = ex.getMessage();
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-        if (message.contains("not found")) {
-            status = HttpStatus.NOT_FOUND;
-        } else if (message.contains("Invalid credentials") || message.contains("User already exists")) {
-            status = HttpStatus.BAD_REQUEST; // or 401/409 depending on context
+        // Authentication failures should return 401
+        if (message.contains("not found") || message.contains("Invalid credentials")
+                || message.contains("deactivated")) {
+            status = HttpStatus.UNAUTHORIZED;
+        } else if (message.contains("User already exists")) {
+            status = HttpStatus.CONFLICT;
         }
 
         return new ResponseEntity<>(
